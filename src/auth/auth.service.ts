@@ -1,8 +1,9 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UsersService } from 'src/users/users.service';
 import * as bcrypt from 'bcryptjs';
 import { UserCreateDto } from 'src/users/dto/UserCreate.dto';
+import { UserLoginDto } from 'src/users/dto/UserLogin.dto';
 
 @Injectable()
 export class AuthService {
@@ -20,9 +21,15 @@ export class AuthService {
     return this.generateToken(user);
   }
 
-  private async generateToken({ email, id, avatar, banner, banned }) {
+  async login(userDto: UserLoginDto) {
+    const user = await this.validate(userDto);
+    return this.generateToken(user);
+  }
+
+  private async generateToken({ nickname, email, id, avatar, banner, banned }) {
     return {
       token: this.jwtService.sign({ email, id }),
+      nickname,
       email,
       avatar,
       banner,
@@ -30,12 +37,11 @@ export class AuthService {
     };
   }
 
-  //
-  // private async validateUser(userDto: LoginUserDto) {
-  //   const user = await this.usersService.getUserByEmail(userDto.email);
-  //   if (!user) throw new UnauthorizedException({ message: 'Некорректный email или пароль' });
-  //   const passwordEquals = await bcrypt.compare(userDto.password, user.password);
-  //   if (passwordEquals) return await this.usersService.getUserById(user.id);
-  //   throw new UnauthorizedException({ message: 'Некорректный email или пароль' });
-  // }
+  private async validate({ email, password }: UserLoginDto) {
+    const user = await this.usersService.getUserByEmail(email);
+    if (!user) throw new UnauthorizedException({ message: 'Некорректный email или пароль' });
+    const passwordEquals = await bcrypt.compare(password, user.password);
+    if (passwordEquals) return user;
+    throw new UnauthorizedException({ message: 'Некорректный email или пароль' });
+  }
 }
