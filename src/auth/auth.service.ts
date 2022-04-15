@@ -8,7 +8,7 @@ import { UserLoginDto } from 'src/users/dto/UserLogin.dto';
 @Injectable()
 export class AuthService {
   constructor(private usersService: UsersService,
-              private jwtService: JwtService) {
+    private jwtService: JwtService) {
   }
 
   async reg(dto: UserCreateDto) {

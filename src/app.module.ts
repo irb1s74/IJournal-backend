@@ -5,7 +5,10 @@ import { ServeStaticModule } from '@nestjs/serve-static';
 import { UsersModule } from './users/users.module';
 import { Users } from './users/model/Users.model';
 import { AuthModule } from './auth/auth.module';
+import { FileModule } from './file/file.module';
+import { PostModule } from './post/post.module';
 import * as path from 'path';
+import { Post } from './post/model/Post.model';
 
 @Module({
   controllers: [],
@@ -24,11 +27,13 @@ import * as path from 'path';
       username: process.env.POSTGRES_USER,
       password: process.env.POSTGRES_PASSWORD,
       database: process.env.POSTGRES_DB,
-      models: [Users],
+      models: [Users, Post],
       autoLoadModels: true,
     }),
     UsersModule,
     AuthModule,
+    FileModule,
+    PostModule,
   ],
 })
 export class AppModule {}
