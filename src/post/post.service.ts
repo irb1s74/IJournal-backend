@@ -5,32 +5,41 @@ import { Post } from './model/Post.model';
 
 @Injectable()
 export class PostService {
-    constructor(@InjectModel(Post) private postsRepository: typeof Post, private fileService: FileService,) { }
+  constructor(
+    @InjectModel(Post) private postsRepository: typeof Post,
+    private fileService: FileService
+  ) {}
 
-    async createPost(req) {
-        return this.postsRepository.create({ userId: req.user.id })
+  async getPost() {
+    return this.postsRepository.findAll();
+  }
+
+  async createPost(req) {
+    return this.postsRepository.create({ userId: req.user.id });
+  }
+
+  async addImage(image: any) {
+    const fileName = await this.fileService.createFile(image, 'posts');
+    return {
+      success: 1,
+      file: {
+        url: `http://localhost:5000/posts/${fileName}`,
+      },
+    };
+  }
+
+  async updatePost(dto, request) {
+    console.log(dto);
+    const post = await this.postsRepository.findByPk(dto.postId);
+    if (post.userId !== request.user.id) {
+      return new HttpException(
+        { message: 'Вы не являетесь автором поста' },
+        HttpStatus.BAD_REQUEST
+      );
     }
-
-    async addImage(image: any) {
-        const fileName = await this.fileService.createFile(image, 'posts')
-        return {
-            success: 1,
-            file: {
-                url: `http://localhost:5000/posts/${fileName}`,
-            }
-        }
-    }
-
-    async updatePost(dto, request) {
-        console.log(dto)
-        const post = await this.postsRepository.findByPk(dto.postId);
-        if (post.userId !== request.user.id) {
-            return new HttpException({ message: 'Вы не являетесь автором поста' }, HttpStatus.BAD_REQUEST)
-        }
-        post.title = dto.title
-        post.data = dto.data
-        post.save();
-        return new HttpException(post, HttpStatus.OK)
-    }
-
+    post.title = dto.title;
+    post.data = dto.data;
+    post.save();
+    return new HttpException(post, HttpStatus.OK);
+  }
 }
