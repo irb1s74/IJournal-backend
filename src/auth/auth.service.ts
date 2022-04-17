@@ -8,7 +8,7 @@ import { UserLoginDto } from 'src/users/dto/UserLogin.dto';
 @Injectable()
 export class AuthService {
   constructor(private usersService: UsersService,
-    private jwtService: JwtService) {
+              private jwtService: JwtService) {
   }
 
   async reg(dto: UserCreateDto) {
@@ -24,6 +24,10 @@ export class AuthService {
   async login(userDto: UserLoginDto) {
     const user = await this.validate(userDto);
     return this.generateToken(user);
+  }
+
+  async ref(request) {
+    return this.generateToken(request.user);
   }
 
   private async generateToken({ nickname, email, id, avatar, banner, banned }) {

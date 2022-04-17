@@ -1,13 +1,15 @@
 import {
   Body,
-  Controller,
-  Post,
+  Controller, Get,
+  Post, Req, UseGuards,
   UsePipes,
-  ValidationPipe,
+  ValidationPipe
 } from '@nestjs/common';
 import { UserCreateDto } from 'src/users/dto/UserCreate.dto';
 import { UserLoginDto } from 'src/users/dto/UserLogin.dto';
 import { AuthService } from './auth.service';
+import { JwtAuthGuard } from '../guards/jwt-auth.guard';
+import { Request } from 'express';
 
 @Controller('auth')
 export class AuthController {
@@ -23,5 +25,11 @@ export class AuthController {
   @UsePipes(ValidationPipe)
   reg(@Body() dto: UserCreateDto) {
     return this.authService.reg(dto);
+  }
+
+  @Get('/ref')
+  @UseGuards(JwtAuthGuard)
+  ref(@Req() request: Request) {
+    return this.authService.ref(request);
   }
 }
