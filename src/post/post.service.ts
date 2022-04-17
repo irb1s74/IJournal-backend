@@ -29,7 +29,6 @@ export class PostService {
   }
 
   async updatePost(dto, request) {
-    console.log(dto);
     const post = await this.postsRepository.findByPk(dto.postId);
     if (post.userId !== request.user.id) {
       return new HttpException(
@@ -37,7 +36,6 @@ export class PostService {
         HttpStatus.BAD_REQUEST
       );
     }
-    post.title = dto.title;
     post.data = dto.data;
     post.save();
     return new HttpException(post, HttpStatus.OK);
