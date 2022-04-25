@@ -4,7 +4,7 @@ import {
   DataType,
   ForeignKey,
   Model,
-  Table,
+  Table
 } from 'sequelize-typescript';
 import { Users } from '../../users/model/Users.model';
 
@@ -18,7 +18,7 @@ export class Post extends Model<Post, PostCreationAttrs> {
     type: DataType.INTEGER,
     unique: true,
     autoIncrement: true,
-    primaryKey: true,
+    primaryKey: true
   })
   id: number;
 
@@ -29,8 +29,15 @@ export class Post extends Model<Post, PostCreationAttrs> {
   @Column({
     type: DataType.JSON,
     allowNull: true,
+    defaultValue: {}
   })
   data: [];
+
+  @Column({
+    type: DataType.BOOLEAN,
+    defaultValue: false
+  })
+  publish: boolean;
 
   @Column({ type: DataType.STRING, allowNull: true })
   rating: string;

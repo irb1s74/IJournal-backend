@@ -2,16 +2,42 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { FileService } from 'src/file/file.service';
 import { Post } from './model/Post.model';
+import { Op } from 'sequelize';
+import { Users } from '../users/model/Users.model';
 
 @Injectable()
 export class PostService {
   constructor(
     @InjectModel(Post) private postsRepository: typeof Post,
     private fileService: FileService
-  ) {}
+  ) {
+  }
 
   async getPost() {
-    return this.postsRepository.findAll();
+    return this.postsRepository.findAll({
+      where: {
+        publish: false
+      },
+      include: {
+        model: Users,
+        attributes: { exclude: ['password', 'id'] }
+      }
+    });
+  }
+
+  async getDrafts(req) {
+    return this.postsRepository.findAll({
+      where: {
+        [Op.and]: [
+          { publish: false },
+          { userId: req.user.id }
+        ]
+      },
+      include: {
+        model: Users,
+        attributes: { exclude: ['password', 'id'] }
+      }
+    });
   }
 
   async createPost(req) {
@@ -23,8 +49,8 @@ export class PostService {
     return {
       success: 1,
       file: {
-        url: `http://localhost:5000/posts/${fileName}`,
-      },
+        url: `http://localhost:5000/posts/${fileName}`
+      }
     };
   }
 
@@ -37,6 +63,13 @@ export class PostService {
       );
     }
     post.data = dto.data;
+    post.save();
+    return new HttpException(post, HttpStatus.OK);
+  }
+
+  async makePublishPost(postId) {
+    const post = await this.postsRepository.findByPk(postId);
+    post.publish = true;
     post.save();
     return new HttpException(post, HttpStatus.OK);
   }

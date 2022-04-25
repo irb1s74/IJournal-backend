@@ -8,7 +8,7 @@ import {
   UseGuards,
   UseInterceptors,
   UsePipes,
-  ValidationPipe,
+  ValidationPipe
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { JwtAuthGuard } from 'src/guards/jwt-auth.guard';
@@ -18,11 +18,18 @@ import { PostUpdateDto } from './dto/UpdatePost.dto';
 
 @Controller('post')
 export class PostController {
-  constructor(private postsService: PostService) {}
+  constructor(private postsService: PostService) {
+  }
 
   @Get('/new')
   getPost() {
     return this.postsService.getPost();
+  }
+
+  @Get('/drafts')
+  @UseGuards(JwtAuthGuard)
+  getDrafts(@Req() request: Request) {
+    return this.postsService.getDrafts(request);
   }
 
   @Post('/create')
