@@ -18,6 +18,7 @@ export class PostService {
       where: {
         publish: false
       },
+      attributes: { exclude: ['userId'] },
       include: {
         model: Users,
         attributes: { exclude: ['password', 'id'] }
@@ -33,6 +34,7 @@ export class PostService {
           { userId: req.user.id }
         ]
       },
+      attributes: { exclude: ['userId'] },
       include: {
         model: Users,
         attributes: { exclude: ['password', 'id'] }

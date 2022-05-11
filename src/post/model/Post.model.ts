@@ -39,7 +39,7 @@ export class Post extends Model<Post, PostCreationAttrs> {
   })
   publish: boolean;
 
-  @Column({ type: DataType.STRING, allowNull: true })
+  @Column({ type: DataType.STRING, allowNull: false, defaultValue: 0 })
   rating: string;
 
   @BelongsTo(() => Users)
