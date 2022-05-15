@@ -1,7 +1,7 @@
 import {
   Body,
   Controller,
-  Get,
+  Get, Param,
   Post,
   Req,
   UploadedFile,
@@ -49,5 +49,11 @@ export class PostController {
   @UsePipes(ValidationPipe)
   updatePost(@Body() dto: PostUpdateDto, @Req() request: Request) {
     return this.postsService.updatePost(dto, request);
+  }
+
+  @Post('/toPublish/:id')
+  @UseGuards(JwtAuthGuard)
+  makePublishPost(@Param('id') postId) {
+    return this.postsService.makePublishPost(postId);
   }
 }

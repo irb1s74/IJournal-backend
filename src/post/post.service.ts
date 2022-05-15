@@ -16,7 +16,7 @@ export class PostService {
   async getPost() {
     return this.postsRepository.findAll({
       where: {
-        publish: false
+        publish: true
       },
       attributes: { exclude: ['userId'] },
       include: {
@@ -70,9 +70,14 @@ export class PostService {
   }
 
   async makePublishPost(postId) {
-    const post = await this.postsRepository.findByPk(postId);
-    post.publish = true;
-    post.save();
-    return new HttpException(post, HttpStatus.OK);
+    try {
+      const post = await this.postsRepository.findByPk(postId);
+      post.publish = true;
+      post.save();
+      return new HttpException(post, HttpStatus.OK);
+
+    } catch (e) {
+      return new HttpException({ 'error': e }, HttpStatus.BAD_REQUEST);
+    }
   }
 }
