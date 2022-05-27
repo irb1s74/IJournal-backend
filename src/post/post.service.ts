@@ -80,4 +80,13 @@ export class PostService {
       return new HttpException({ 'error': e }, HttpStatus.BAD_REQUEST);
     }
   }
+
+  async deletePost(postId) {
+    try {
+      await this.postsRepository.destroy({ where: { id: postId } });
+      return new HttpException({ message: 'post has been deleted' }, HttpStatus.OK);
+    } catch (e) {
+      return new HttpException({ 'error': e }, HttpStatus.BAD_REQUEST);
+    }
+  }
 }

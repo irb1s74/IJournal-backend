@@ -1,6 +1,6 @@
 import {
   Body,
-  Controller,
+  Controller, Delete,
   Get, Param,
   Post,
   Req,
@@ -51,9 +51,15 @@ export class PostController {
     return this.postsService.updatePost(dto, request);
   }
 
-  @Post('/toPublish/:id')
+  @Get('/publish/:id')
   @UseGuards(JwtAuthGuard)
   makePublishPost(@Param('id') postId) {
     return this.postsService.makePublishPost(postId);
+  }
+
+  @Delete('/delete/:id')
+  @UseGuards(JwtAuthGuard)
+  deletePost(@Param('id') postId) {
+    return this.postsService.deletePost(postId);
   }
 }
