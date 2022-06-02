@@ -32,6 +32,12 @@ export class PostController {
     return this.postsService.getDrafts(request);
   }
 
+  @Get('/publish')
+  @UseGuards(JwtAuthGuard)
+  getPublish(@Req() request: Request) {
+    return this.postsService.getPublish(request);
+  }
+
   @Post('/create')
   @UseGuards(JwtAuthGuard)
   createPost(@Req() request: Request) {
@@ -53,8 +59,14 @@ export class PostController {
 
   @Get('/publish/:id')
   @UseGuards(JwtAuthGuard)
-  makePublishPost(@Param('id') postId) {
-    return this.postsService.makePublishPost(postId);
+  toPublishPost(@Param('id') postId) {
+    return this.postsService.toPublishPost(postId);
+  }
+
+  @Get('/unPublish/:id')
+  @UseGuards(JwtAuthGuard)
+  toUnPublishPost(@Param('id') postId) {
+    return this.postsService.toUnPublishPost(postId);
   }
 
   @Delete('/delete/:id')

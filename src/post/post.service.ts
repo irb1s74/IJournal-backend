@@ -42,6 +42,22 @@ export class PostService {
     });
   }
 
+  async getPublish(req) {
+    return this.postsRepository.findAll({
+      where: {
+        [Op.and]: [
+          { publish: true },
+          { userId: req.user.id }
+        ]
+      },
+      attributes: { exclude: ['userId'] },
+      include: {
+        model: Users,
+        attributes: { exclude: ['password', 'id'] }
+      }
+    });
+  }
+
   async createPost(req) {
     return this.postsRepository.create({ userId: req.user.id });
   }
@@ -69,13 +85,24 @@ export class PostService {
     return new HttpException(post, HttpStatus.OK);
   }
 
-  async makePublishPost(postId) {
+  async toPublishPost(postId) {
     try {
       const post = await this.postsRepository.findByPk(postId);
       post.publish = true;
       post.save();
       return new HttpException(post, HttpStatus.OK);
 
+    } catch (e) {
+      return new HttpException({ 'error': e }, HttpStatus.BAD_REQUEST);
+    }
+  }
+
+  async toUnPublishPost(postId) {
+    try {
+      const post = await this.postsRepository.findByPk(postId);
+      post.publish = false;
+      post.save();
+      return new HttpException(post, HttpStatus.OK);
     } catch (e) {
       return new HttpException({ 'error': e }, HttpStatus.BAD_REQUEST);
     }
