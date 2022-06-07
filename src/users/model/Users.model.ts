@@ -1,4 +1,4 @@
-import { Column, Table, DataType, Model, BelongsToMany, HasMany } from "sequelize-typescript";
+import { Column, Table, DataType, Model, HasMany } from "sequelize-typescript";
 import { Post } from '../../post/model/Post.model'
 
 interface UsersCreationAttrs {
@@ -9,7 +9,6 @@ interface UsersCreationAttrs {
 
 @Table({ tableName: 'users', updatedAt: false })
 export class Users extends Model<Users, UsersCreationAttrs> {
-
   @Column({ type: DataType.INTEGER, unique: true, autoIncrement: true, primaryKey: true })
   id: number;
 
@@ -37,14 +36,14 @@ export class Users extends Model<Users, UsersCreationAttrs> {
   @Column({ type: DataType.STRING, allowNull: true })
   aboutUser: string;
 
-  // @BelongsToMany(() => Role, () => UserRoles,)
-  // roles: Role[];
-  //
-
   @HasMany(() => Post)
   posts: Post[];
 
   // @HasMany(() => likes)
   // likes: []
+
+  // @BelongsToMany(() => Role, () => UserRoles,)
+  // roles: Role[];
+  //
 
 }

@@ -9,6 +9,7 @@ import { FileModule } from './file/file.module';
 import { PostModule } from './post/post.module';
 import * as path from 'path';
 import { Post } from './post/model/Post.model';
+import { ProfileModule } from './profile/profile.module';
 
 @Module({
   controllers: [],
@@ -34,6 +35,7 @@ import { Post } from './post/model/Post.model';
     AuthModule,
     FileModule,
     PostModule,
+    ProfileModule,
   ],
 })
 export class AppModule {}

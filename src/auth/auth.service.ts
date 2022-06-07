@@ -27,7 +27,8 @@ export class AuthService {
   }
 
   async ref(request) {
-    return this.generateToken(request.user);
+    const user = await this.usersService.getUserByEmail(request.user.email);
+    return this.generateToken(user);
   }
 
   private async generateToken({ nickname, email, id, avatar, banner, banned }) {
