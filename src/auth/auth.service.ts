@@ -1,9 +1,9 @@
 import { HttpException, HttpStatus, Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UsersService } from 'src/users/users.service';
-import * as bcrypt from 'bcryptjs';
 import { UserCreateDto } from 'src/users/dto/UserCreate.dto';
 import { UserLoginDto } from 'src/users/dto/UserLogin.dto';
+import * as bcrypt from 'bcryptjs';
 
 @Injectable()
 export class AuthService {
@@ -31,14 +31,10 @@ export class AuthService {
     return this.generateToken(user);
   }
 
-  private async generateToken({ nickname, email, id, avatar, banner, banned }) {
+  private async generateToken({ email, id, nickname, avatar, banner, banned, banReason, aboutUser }) {
     return {
-      token: this.jwtService.sign({ email, id }),
-      nickname,
-      email,
-      avatar,
-      banner,
-      banned
+      email, id, nickname, avatar, banner, banned, banReason, aboutUser,
+      token: this.jwtService.sign({ email, id })
     };
   }
 

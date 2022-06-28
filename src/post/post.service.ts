@@ -2,7 +2,6 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { FileService } from 'src/file/file.service';
 import { Post } from './model/Post.model';
-import { Op } from 'sequelize';
 import { Users } from '../users/model/Users.model';
 
 @Injectable()
@@ -17,38 +16,6 @@ export class PostService {
     return this.postsRepository.findAll({
       where: {
         publish: true
-      },
-      attributes: { exclude: ['userId'] },
-      include: {
-        model: Users,
-        attributes: { exclude: ['password', 'id'] }
-      }
-    });
-  }
-
-  async getDrafts(req) {
-    return this.postsRepository.findAll({
-      where: {
-        [Op.and]: [
-          { publish: false },
-          { userId: req.user.id }
-        ]
-      },
-      attributes: { exclude: ['userId'] },
-      include: {
-        model: Users,
-        attributes: { exclude: ['password', 'id'] }
-      }
-    });
-  }
-
-  async getPublish(req) {
-    return this.postsRepository.findAll({
-      where: {
-        [Op.and]: [
-          { publish: true },
-          { userId: req.user.id }
-        ]
       },
       attributes: { exclude: ['userId'] },
       include: {

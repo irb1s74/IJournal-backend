@@ -26,17 +26,7 @@ export class PostController {
     return this.postsService.getPost();
   }
 
-  @Get('/drafts')
-  @UseGuards(JwtAuthGuard)
-  getDrafts(@Req() request: Request) {
-    return this.postsService.getDrafts(request);
-  }
 
-  @Get('/publish')
-  @UseGuards(JwtAuthGuard)
-  getPublish(@Req() request: Request) {
-    return this.postsService.getPublish(request);
-  }
 
   @Post('/create')
   @UseGuards(JwtAuthGuard)

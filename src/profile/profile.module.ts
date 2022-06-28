@@ -6,12 +6,13 @@ import { JwtModule } from '@nestjs/jwt';
 import { FileModule } from '../file/file.module';
 import { SequelizeModule } from '@nestjs/sequelize';
 import { Users } from '../users/model/Users.model';
+import { Post } from '../post/model/Post.model';
 
 @Module({
   controllers: [ProfileController],
   providers: [ProfileService],
   imports: [
-    SequelizeModule.forFeature([Users]),
+    SequelizeModule.forFeature([Users, Post]),
     UsersModule,
     FileModule,
     JwtModule.register({

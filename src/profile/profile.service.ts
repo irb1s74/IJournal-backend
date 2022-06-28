@@ -3,10 +3,12 @@ import { InjectModel } from '@nestjs/sequelize';
 import { Users } from '../users/model/Users.model';
 import { FileService } from '../file/file.service';
 import { UsersService } from '../users/users.service';
+import { Op } from 'sequelize';
+import { Post } from '../post/model/Post.model';
 
 @Injectable()
 export class ProfileService {
-  constructor(@InjectModel(Users) private userRepository: typeof Users, private filesService: FileService, private usersService: UsersService) {
+  constructor(@InjectModel(Users) private userRepository: typeof Users, @InjectModel(Post) private postsRepository: typeof Users, private filesService: FileService, private usersService: UsersService) {
   }
 
   async updateAvatar(avatar: any, req) {
@@ -32,4 +34,57 @@ export class ProfileService {
       throw new HttpException(e, HttpStatus.UNAUTHORIZED);
     }
   }
+
+  async getPostDrafts(req) {
+    return this.postsRepository.findAll({
+      where: {
+        [Op.and]: [
+          { publish: false },
+          { userId: req.user.id }
+        ]
+      },
+      attributes: { exclude: ['userId'] },
+      include: {
+        model: Users,
+        attributes: { exclude: ['password', 'id'] }
+      }
+    });
+  }
+
+  async getPostPublish(req) {
+    return this.postsRepository.findAll({
+      where: {
+        [Op.and]: [
+          { publish: true },
+          { userId: req.user.id }
+        ]
+      },
+      attributes: { exclude: ['userId'] },
+      include: {
+        model: Users,
+        attributes: { exclude: ['password', 'id'] }
+      }
+    });
+  }
+
+  async getUserPost(userId) {
+    return this.postsRepository.findAll({
+      where: {
+        [Op.and]: [
+          { publish: true },
+          { userId: userId }
+        ]
+      },
+      attributes: { exclude: ['userId'] },
+      include: {
+        model: Users,
+        attributes: { exclude: ['password', 'id'] }
+      }
+    });
+  }
+
+  async getUser(userId) {
+    return await this.userRepository.findByPk(userId, { attributes: { exclude: ['password', 'id'] } });
+  }
+
 }

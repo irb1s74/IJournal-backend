@@ -1,7 +1,7 @@
 import { JwtAuthGuard } from '../guards/jwt-auth.guard';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ProfileService } from './profile.service';
-import { Controller, Post, Req, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
+import { Controller, Get, Param, Post, Req, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
 import { Request } from 'express';
 
 @Controller('profile')
@@ -22,4 +22,27 @@ export class ProfileController {
   updateBanner(@UploadedFile() banner, @Req() request: Request) {
     return this.profileService.updateBanner(banner, request);
   }
+
+  @Get('/drafts')
+  @UseGuards(JwtAuthGuard)
+  getDrafts(@Req() request: Request) {
+    return this.profileService.getPostDrafts(request);
+  }
+
+  @Get('/publish')
+  @UseGuards(JwtAuthGuard)
+  getPublish(@Req() request: Request) {
+    return this.profileService.getPostPublish(request);
+  }
+
+  @Get('/:userId/publish')
+  getPosts(@Param('userId') userId) {
+    return this.profileService.getUserPost(userId);
+  }
+
+  @Get('/:userId')
+  getUser(@Param('userId') userId) {
+    return this.profileService.getUser(userId);
+  }
+
 }
