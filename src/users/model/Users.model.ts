@@ -1,5 +1,6 @@
-import { Column, Table, DataType, Model, HasMany } from "sequelize-typescript";
+import { Column, Table, DataType, Model, HasMany, BelongsTo } from 'sequelize-typescript';
 import { Post } from '../../post/model/Post.model'
+import { Subscriptions } from '../../subscriptions/model/Subscriptions.model';
 
 interface UsersCreationAttrs {
   email: string;
@@ -38,6 +39,12 @@ export class Users extends Model<Users, UsersCreationAttrs> {
 
   @HasMany(() => Post)
   posts: Post[];
+
+  @HasMany(() => Subscriptions)
+  subscribers: Subscriptions[];
+  subscriptions: Subscriptions[];
+
+
 
   // @HasMany(() => likes)
   // likes: []

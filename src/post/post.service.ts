@@ -20,7 +20,7 @@ export class PostService {
       attributes: { exclude: ['userId'] },
       include: {
         model: Users,
-        attributes: { exclude: ['password', 'id'] }
+        attributes: { exclude: ['password'] }
       }
     });
   }

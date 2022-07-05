@@ -5,6 +5,7 @@ import { FileService } from '../file/file.service';
 import { UsersService } from '../users/users.service';
 import { Op } from 'sequelize';
 import { Post } from '../post/model/Post.model';
+import { Subscriptions } from '../subscriptions/model/Subscriptions.model';
 
 @Injectable()
 export class ProfileService {
@@ -46,7 +47,9 @@ export class ProfileService {
       attributes: { exclude: ['userId'] },
       include: {
         model: Users,
-        attributes: { exclude: ['password', 'id'] }
+        attributes: [
+          'id', 'nickname', 'email', 'avatar'
+        ]
       }
     });
   }
@@ -62,7 +65,9 @@ export class ProfileService {
       attributes: { exclude: ['userId'] },
       include: {
         model: Users,
-        attributes: { exclude: ['password', 'id'] }
+        attributes: [
+          'id', 'nickname', 'email', 'avatar'
+        ]
       }
     });
   }
@@ -78,13 +83,45 @@ export class ProfileService {
       attributes: { exclude: ['userId'] },
       include: {
         model: Users,
-        attributes: { exclude: ['password', 'id'] }
+        attributes: [
+          'id', 'nickname', 'email', 'avatar'
+        ]
       }
     });
   }
 
   async getUser(userId) {
-    return await this.userRepository.findByPk(userId, { attributes: { exclude: ['password', 'id'] } });
+    return await this.userRepository.findByPk(userId, {
+      attributes: {
+        exclude: ['password', 'id']
+      },
+      include: [
+        {
+          model: Post,
+          include: [{
+            model: Users,
+            attributes: [
+              'id', 'nickname', 'email', 'avatar'
+            ]
+          }]
+        },
+        {
+          model: Subscriptions,
+          as: 'subscriptions',
+          where: {
+            userId: {
+              [Op.ne]: userId
+            }
+          },
+          include: [{
+            model: Users,
+            attributes: [
+              'id', 'nickname', 'email', 'avatar'
+            ]
+          }]
+        }
+      ]
+    });
   }
 
 }

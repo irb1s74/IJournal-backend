@@ -10,16 +10,18 @@ import { PostModule } from './post/post.module';
 import * as path from 'path';
 import { Post } from './post/model/Post.model';
 import { ProfileModule } from './profile/profile.module';
+import { SubscriptionsModule } from './subscriptions/subscriptions.module';
+import { Subscriptions } from './subscriptions/model/Subscriptions.model';
 
 @Module({
   controllers: [],
   providers: [],
   imports: [
     ConfigModule.forRoot({
-      envFilePath: `.${process.env.NODE_ENV}.env`,
+      envFilePath: `.${process.env.NODE_ENV}.env`
     }),
     ServeStaticModule.forRoot({
-      rootPath: path.resolve(__dirname, 'static'),
+      rootPath: path.resolve(__dirname, 'static')
     }),
     SequelizeModule.forRoot({
       dialect: 'postgres',
@@ -28,14 +30,16 @@ import { ProfileModule } from './profile/profile.module';
       username: process.env.POSTGRES_USER,
       password: process.env.POSTGRES_PASSWORD,
       database: process.env.POSTGRES_DB,
-      models: [Users, Post],
-      autoLoadModels: true,
+      models: [Users, Post, Subscriptions],
+      autoLoadModels: true
     }),
     UsersModule,
     AuthModule,
     FileModule,
     PostModule,
     ProfileModule,
-  ],
+    SubscriptionsModule
+  ]
 })
-export class AppModule {}
+export class AppModule {
+}
