@@ -5,11 +5,12 @@ import { FileService } from '../file/file.service';
 import { UsersService } from '../users/users.service';
 import { Op } from 'sequelize';
 import { Post } from '../post/model/Post.model';
+import { SubscriptionsService } from '../subscriptions/subscriptions.service';
 import { Subscriptions } from '../subscriptions/model/Subscriptions.model';
 
 @Injectable()
 export class ProfileService {
-  constructor(@InjectModel(Users) private userRepository: typeof Users, @InjectModel(Post) private postsRepository: typeof Users, private filesService: FileService, private usersService: UsersService) {
+  constructor(@InjectModel(Users) private userRepository: typeof Users, @InjectModel(Post) private postsRepository: typeof Users, private filesService: FileService, private usersService: UsersService, private subscriptionsService: SubscriptionsService) {
   }
 
   async updateAvatar(avatar: any, req) {
@@ -90,6 +91,10 @@ export class ProfileService {
     });
   }
 
+  async getUserSubscriptions(userId) {
+    return this.subscriptionsService.getUserSubscribe(userId);
+  }
+
   async getUser(userId) {
     return await this.userRepository.findByPk(userId, {
       attributes: {
@@ -103,22 +108,8 @@ export class ProfileService {
             attributes: [
               'id', 'nickname', 'email', 'avatar'
             ]
-          }]
-        },
-        {
-          model: Subscriptions,
-          as: 'subscriptions',
-          where: {
-            userId: {
-              [Op.ne]: userId
-            }
-          },
-          include: [{
-            model: Users,
-            attributes: [
-              'id', 'nickname', 'email', 'avatar'
-            ]
-          }]
+          }],
+          required: false
         }
       ]
     });

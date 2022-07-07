@@ -1,4 +1,4 @@
-import { Column, Table, DataType, Model, ForeignKey, BelongsTo, HasMany } from 'sequelize-typescript';
+import { Column, Table, DataType, Model, ForeignKey, BelongsTo } from 'sequelize-typescript';
 import { Users } from '../../users/model/Users.model';
 
 interface SubscriptionsCreationAttrs {
@@ -12,23 +12,21 @@ export class Subscriptions extends Model<Subscriptions, SubscriptionsCreationAtt
   id: number;
 
   @Column({ type: DataType.INTEGER, allowNull: false })
-  @ForeignKey(() => Users)
   subscriberId: number;
 
   @Column({ type: DataType.INTEGER, allowNull: false })
-  @ForeignKey(() => Users)
   userId: number;
 
-  @BelongsTo(() => Users)
-  user: Users[];
+  @BelongsTo(() => Users, {
+    as: 'subscriber',
+    foreignKey: 'subscriberId'
 
+  })
+  subscriberUser: Users;
 
-  // @HasMany(() => likes)
-  // likes: []
-
-  // @BelongsToMany(() => Role, () => UserRoles,)
-  // roles: Role[];
-  //
-
-
+  @BelongsTo(() => Users, {
+    as: 'subscription',
+    foreignKey: 'userId'
+  })
+  subscriptionUser: Users;
 }

@@ -40,6 +40,11 @@ export class ProfileController {
     return this.profileService.getUserPost(userId);
   }
 
+  @Get('/:userId/subscriptions')
+  getUserSubscriptions(@Param('userId') userId) {
+    return this.profileService.getUserSubscriptions(userId);
+  }
+
   @Get('/:userId')
   getUser(@Param('userId') userId) {
     return this.profileService.getUser(userId);
