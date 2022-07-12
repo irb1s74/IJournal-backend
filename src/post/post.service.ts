@@ -17,13 +17,13 @@ export class PostService {
 
   async getPost() {
     return this.postsRepository.sequelize.query(`(SELECT 
-"Post"."id", "Post"."userId", "Post"."data", "Post"."publish", "Post"."createdAt", "Post"."updatedAt", 
-(SELECT COUNT(rating."ratingType") FROM rating WHERE rating."ratingType" = 'up' AND "Post"."id" = rating."postId") - (SELECT COUNT(rating."ratingType") FROM rating WHERE rating."ratingType" = 'down' AND "Post"."id" = rating."postId") as "rating",
-"author"."id" AS "author.id", "author"."email" AS "author.email", "author"."nickname" AS "author.nickname", "author"."avatar" AS "author.avatar", "author"."banner" AS "author.banner", "author"."banned" AS "author.banned", "author"."banReason" AS "author.banReason", "author"."aboutUser" AS "author.aboutUser", "author"."createdAt" AS "author.createdAt" 
-FROM (("post" AS "Post" 
- LEFT OUTER JOIN "users" AS "author" ON "Post"."userId" = "author"."id")
- LEFT OUTER JOIN rating ON "Post"."id" = rating."postId"
-)  WHERE "Post"."publish" = true)`,
+    post."id", post."userId", post."data", post."publish", post."updatedAt", 
+    (SELECT COUNT(rating."ratingType") FROM rating WHERE rating."ratingType" = 'up' AND post."id" = rating."postId") - (SELECT COUNT(rating."ratingType") FROM rating WHERE rating."ratingType" = 'down' AND post."id" = rating."postId") as "rating",
+    author."id" AS "author.id", author."email" AS "author.email", author."nickname" AS "author.nickname", author."avatar" AS "author.avatar"
+    FROM ((post
+    LEFT OUTER JOIN users AS author ON post."userId" = "author"."id")
+    LEFT OUTER JOIN rating ON post."id" = rating."postId"
+    )  WHERE post."publish" = true)`,
       {
         nest: true,
         type: QueryTypes.SELECT
@@ -95,10 +95,21 @@ FROM (("post" AS "Post"
   }
 
   async increaseRatingPost(postId, request) {
-    return await this.ratingService.createRating(request.user.id, postId, 'up');
+    await this.ratingService.createRating(request.user.id, postId, 'up');
+    const rating = await this.postsRepository.sequelize.query(`(SELECT (SELECT COUNT(rating."ratingType") FROM rating WHERE rating."ratingType" = 'up' AND ${postId}  = rating."postId") - (SELECT COUNT(rating."ratingType") FROM rating WHERE rating."ratingType" = 'down' AND ${postId} = rating."postId") as "rating")`,
+      {
+        type: QueryTypes.SELECT
+      });
+
+    return rating[0];
   }
 
   async decreaseRatingPost(postId, request) {
-    return await this.ratingService.createRating(request.user.id, postId, 'down');
+    await this.ratingService.createRating(request.user.id, postId, 'down');
+    const rating = await this.postsRepository.sequelize.query(`(SELECT (SELECT COUNT(rating."ratingType") FROM rating WHERE rating."ratingType" = 'up' AND ${postId}  = rating."postId") - (SELECT COUNT(rating."ratingType") FROM rating WHERE rating."ratingType" = 'down' AND ${postId} = rating."postId") as "rating")`,
+      {
+        type: QueryTypes.SELECT
+      });
+    return rating[0];
   }
 }

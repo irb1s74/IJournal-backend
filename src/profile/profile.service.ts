@@ -3,7 +3,7 @@ import { InjectModel } from '@nestjs/sequelize';
 import { Users } from '../users/model/Users.model';
 import { FileService } from '../file/file.service';
 import { UsersService } from '../users/users.service';
-import { literal, Op } from 'sequelize';
+import { QueryTypes } from 'sequelize';
 import { Post } from '../post/model/Post.model';
 import { SubscriptionsService } from '../subscriptions/subscriptions.service';
 
@@ -36,110 +36,81 @@ export class ProfileService {
     }
   }
 
-  async getPostDrafts(req) {
-    return this.postsRepository.findAll({
-      where: {
-        [Op.and]: [
-          { publish: false },
-          { userId: req.user.id }
-        ]
-      },
-      attributes: {
-        exclude: ['userId'],
-        include: [
-          [
-            literal(`(SELECT((SELECT COUNT("ratingType") FROM rating WHERE "ratingType" = 'up') - (SELECT COUNT("ratingType") FROM rating WHERE "ratingType" = 'down')) as "rating" from rating )`), 'rating'
-          ]
-        ]
-      },
-      include: {
-        model: Users,
-        attributes: [
-          'id', 'nickname', 'email', 'avatar'
-        ]
-      }
-    });
+  async getPostDrafts(userId) {
+    return this.postsRepository.sequelize.query(`(SELECT 
+    post."id", post."userId", post."data", post."publish", post."updatedAt", 
+    (SELECT COUNT(rating."ratingType") FROM rating WHERE rating."ratingType" = 'up' AND post."id" = rating."postId") - (SELECT COUNT(rating."ratingType") FROM rating WHERE rating."ratingType" = 'down' AND post."id" = rating."postId") as "rating",
+    author."id" AS "author.id", author."email" AS "author.email", author."nickname" AS "author.nickname", author."avatar" AS "author.avatar"
+    FROM ((post
+    LEFT OUTER JOIN users AS author ON post."userId" = "author"."id")
+    LEFT OUTER JOIN rating ON post."id" = rating."postId"
+    )  WHERE post."publish" = false AND post."userId" = ${userId})`,
+      {
+        nest: true,
+        type: QueryTypes.SELECT
+      });
   }
 
-  async getPostPublish(req) {
-    return this.postsRepository.findAll({
-      where: {
-        [Op.and]: [
-          { publish: true },
-          { userId: req.user.id }
-        ]
-      },
-      attributes: {
-        exclude: ['userId'],
-        include: [
-          [
-            literal(`(SELECT((SELECT COUNT("ratingType") FROM rating WHERE "ratingType" = 'up') - (SELECT COUNT("ratingType") FROM rating WHERE "ratingType" = 'down')) as "rating" from rating )`), 'rating'
-          ]
-        ]
-      },
-      include: {
-        model: Users,
-        attributes: [
-          'id', 'nickname', 'email', 'avatar'
-        ]
-      }
-    });
-  }
-
-  async getUserPost(userId) {
-    return this.postsRepository.findAll({
-      where: {
-        [Op.and]: [
-          { publish: true },
-          { userId: userId }
-        ]
-      },
-      attributes: {
-        exclude: ['userId'], include: [
-          [
-            literal(`(SELECT((SELECT COUNT("ratingType") FROM rating WHERE "ratingType" = 'up') - (SELECT COUNT("ratingType") FROM rating WHERE "ratingType" = 'down')) as "rating" from rating )`), 'rating'
-          ]
-        ]
-      },
-      include: {
-        model: Users,
-        attributes: [
-          'id', 'nickname', 'email', 'avatar'
-        ]
-      }
-    });
+  async getPostPublish(userId) {
+    return this.postsRepository.sequelize.query(`(SELECT 
+    post."id", post."userId", post."data", post."publish", post."updatedAt", 
+    (SELECT COUNT(rating."ratingType") FROM rating WHERE rating."ratingType" = 'up' AND post."id" = rating."postId") - (SELECT COUNT(rating."ratingType") FROM rating WHERE rating."ratingType" = 'down' AND post."id" = rating."postId") as "rating",
+    author."id" AS "author.id", author."email" AS "author.email", author."nickname" AS "author.nickname", author."avatar" AS "author.avatar"
+    FROM ((post
+    LEFT OUTER JOIN users AS author ON post."userId" = "author"."id")
+    LEFT OUTER JOIN rating ON post."id" = rating."postId"
+    )  WHERE post."publish" = true AND post."userId" = ${userId})`,
+      {
+        nest: true,
+        type: QueryTypes.SELECT
+      });
   }
 
   async getUserSubscriptions(userId) {
     return this.subscriptionsService.getUserSubscribe(userId);
   }
 
+  // async getUser(userId) {
+  //   return await this.userRepository.findByPk(userId, {
+  //     attributes: {
+  //       exclude: ['password', 'id'],
+  //     },
+  //
+  //     include: [
+  //       {
+  //         model: Post,
+  //         attributes: {
+  //           exclude: ['userId'],
+  //         },
+  //         include: [{
+  //           model: Users,
+  //           attributes: [
+  //             'id', 'nickname', 'email', 'avatar'
+  //           ]
+  //         }],
+  //         required: false
+  //       }
+  //     ]
+  //   });
+  // }
   async getUser(userId) {
-    return await this.userRepository.findByPk(userId, {
-      attributes: {
-        exclude: ['password', 'id']
-      },
-      include: [
-        {
-          model: Post,
-          attributes: {
-            exclude: ['userId'],
-            include: [
-              [
-                literal(`SELECT((SELECT COUNT("ratingType") FROM rating WHERE "ratingType" = 'up') - (SELECT COUNT("ratingType") FROM rating WHERE "ratingType" = 'down')) as "rating" from rating WHERE "postId" = post.id`), 'rating'
-              ]
-            ]
-          },
-          include: [{
-            model: Users,
-            attributes: [
-              'id', 'nickname', 'email', 'avatar'
-            ]
-          }],
-          required: false
-        }
-      ]
+    const user = await this.userRepository.findByPk(userId, {
+      attributes: ['id', 'nickname', 'email', 'avatar', 'banner', 'aboutUser', 'createdAt']
     });
+    const posts = await this.postsRepository.sequelize.query(`(SELECT 
+    post."id", post."userId", post."data", post."publish", post."updatedAt", 
+    (SELECT COUNT(rating."ratingType") FROM rating WHERE rating."ratingType" = 'up' AND post."id" = rating."postId") - (SELECT COUNT(rating."ratingType") FROM rating WHERE rating."ratingType" = 'down' AND post."id" = rating."postId") as "rating",
+    author."id" AS "author.id", author."email" AS "author.email", author."nickname" AS "author.nickname", author."avatar" AS "author.avatar"
+    FROM ((post
+    LEFT OUTER JOIN users AS author ON post."userId" = "author"."id")
+    LEFT OUTER JOIN rating ON post."id" = rating."postId"
+    )  WHERE post."publish" = true AND post."userId" = ${userId})`,
+      {
+        nest: true,
+        type: QueryTypes.SELECT
+      });
+
+    return { user, posts: posts };
   }
 
 }

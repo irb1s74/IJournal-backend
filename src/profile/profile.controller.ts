@@ -25,19 +25,19 @@ export class ProfileController {
 
   @Get('/drafts')
   @UseGuards(JwtAuthGuard)
-  getDrafts(@Req() request: Request) {
-    return this.profileService.getPostDrafts(request);
+  getDrafts(@Req() request: { user: { id: number } }) {
+    return this.profileService.getPostDrafts(request.user.id);
   }
 
   @Get('/publish')
   @UseGuards(JwtAuthGuard)
-  getPublish(@Req() request: Request) {
-    return this.profileService.getPostPublish(request);
+  getPublish(@Req() request: { user: { id: number } }) {
+    return this.profileService.getPostPublish(request.user.id);
   }
 
   @Get('/:userId/publish')
   getPosts(@Param('userId') userId) {
-    return this.profileService.getUserPost(userId);
+    return this.profileService.getPostPublish(userId);
   }
 
   @Get('/:userId/subscriptions')
