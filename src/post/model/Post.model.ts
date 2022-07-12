@@ -1,12 +1,6 @@
-import {
-  BelongsTo,
-  Column,
-  DataType,
-  ForeignKey,
-  Model,
-  Table
-} from 'sequelize-typescript';
+import { BelongsTo, Column, DataType, ForeignKey, HasMany, Model, Table } from 'sequelize-typescript';
 import { Users } from '../../users/model/Users.model';
+import { Rating } from '../../rating/model/Rating.model';
 
 interface PostCreationAttrs {
   userId: number;
@@ -22,8 +16,8 @@ export class Post extends Model<Post, PostCreationAttrs> {
   })
   id: number;
 
-  @ForeignKey(() => Users)
   @Column({ type: DataType.INTEGER, allowNull: false })
+  @ForeignKey(() => Users)
   userId: number;
 
   @Column({
@@ -39,9 +33,9 @@ export class Post extends Model<Post, PostCreationAttrs> {
   })
   publish: boolean;
 
-  @Column({ type: DataType.STRING, allowNull: false, defaultValue: 0 })
-  rating: string;
-
   @BelongsTo(() => Users)
   author: Users;
+
+  @HasMany(() => Rating)
+  rating: Rating;
 }

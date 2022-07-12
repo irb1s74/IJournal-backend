@@ -3,10 +3,9 @@ import { InjectModel } from '@nestjs/sequelize';
 import { Users } from '../users/model/Users.model';
 import { FileService } from '../file/file.service';
 import { UsersService } from '../users/users.service';
-import { Op } from 'sequelize';
+import { literal, Op } from 'sequelize';
 import { Post } from '../post/model/Post.model';
 import { SubscriptionsService } from '../subscriptions/subscriptions.service';
-import { Subscriptions } from '../subscriptions/model/Subscriptions.model';
 
 @Injectable()
 export class ProfileService {
@@ -45,7 +44,14 @@ export class ProfileService {
           { userId: req.user.id }
         ]
       },
-      attributes: { exclude: ['userId'] },
+      attributes: {
+        exclude: ['userId'],
+        include: [
+          [
+            literal(`(SELECT((SELECT COUNT("ratingType") FROM rating WHERE "ratingType" = 'up') - (SELECT COUNT("ratingType") FROM rating WHERE "ratingType" = 'down')) as "rating" from rating )`), 'rating'
+          ]
+        ]
+      },
       include: {
         model: Users,
         attributes: [
@@ -63,7 +69,14 @@ export class ProfileService {
           { userId: req.user.id }
         ]
       },
-      attributes: { exclude: ['userId'] },
+      attributes: {
+        exclude: ['userId'],
+        include: [
+          [
+            literal(`(SELECT((SELECT COUNT("ratingType") FROM rating WHERE "ratingType" = 'up') - (SELECT COUNT("ratingType") FROM rating WHERE "ratingType" = 'down')) as "rating" from rating )`), 'rating'
+          ]
+        ]
+      },
       include: {
         model: Users,
         attributes: [
@@ -81,7 +94,13 @@ export class ProfileService {
           { userId: userId }
         ]
       },
-      attributes: { exclude: ['userId'] },
+      attributes: {
+        exclude: ['userId'], include: [
+          [
+            literal(`(SELECT((SELECT COUNT("ratingType") FROM rating WHERE "ratingType" = 'up') - (SELECT COUNT("ratingType") FROM rating WHERE "ratingType" = 'down')) as "rating" from rating )`), 'rating'
+          ]
+        ]
+      },
       include: {
         model: Users,
         attributes: [
@@ -103,6 +122,14 @@ export class ProfileService {
       include: [
         {
           model: Post,
+          attributes: {
+            exclude: ['userId'],
+            include: [
+              [
+                literal(`SELECT((SELECT COUNT("ratingType") FROM rating WHERE "ratingType" = 'up') - (SELECT COUNT("ratingType") FROM rating WHERE "ratingType" = 'down')) as "rating" from rating WHERE "postId" = post.id`), 'rating'
+              ]
+            ]
+          },
           include: [{
             model: Users,
             attributes: [

@@ -26,7 +26,6 @@ export class SubscriptionsService {
           userId: dto.userId
         }
       });
-      console.log(created);
       if (!created) {
         await subscribe.destroy();
         return new HttpException({ message: 'subscribe has been deleted' }, HttpStatus.OK);
@@ -43,6 +42,9 @@ export class SubscriptionsService {
         where: {
           userId: userId
         },
+        attributes: [
+          'createdAt', 'userId'
+        ],
         include: {
           model: Users,
           as: 'subscriber',
@@ -55,6 +57,9 @@ export class SubscriptionsService {
         where: {
           subscriberId: userId
         },
+        attributes: [
+          'createdAt', 'subscriberId'
+        ],
         include: {
           model: Users,
           as: 'subscription',

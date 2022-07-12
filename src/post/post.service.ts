@@ -2,27 +2,32 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { FileService } from 'src/file/file.service';
 import { Post } from './model/Post.model';
-import { Users } from '../users/model/Users.model';
+import { RatingService } from '../rating/rating.service';
+import { QueryTypes } from 'sequelize';
+
 
 @Injectable()
 export class PostService {
   constructor(
     @InjectModel(Post) private postsRepository: typeof Post,
-    private fileService: FileService
+    private fileService: FileService,
+    private ratingService: RatingService
   ) {
   }
 
   async getPost() {
-    return this.postsRepository.findAll({
-      where: {
-        publish: true
-      },
-      attributes: { exclude: ['userId'] },
-      include: {
-        model: Users,
-        attributes: { exclude: ['password'] }
-      }
-    });
+    return this.postsRepository.sequelize.query(`(SELECT 
+"Post"."id", "Post"."userId", "Post"."data", "Post"."publish", "Post"."createdAt", "Post"."updatedAt", 
+(SELECT COUNT(rating."ratingType") FROM rating WHERE rating."ratingType" = 'up' AND "Post"."id" = rating."postId") - (SELECT COUNT(rating."ratingType") FROM rating WHERE rating."ratingType" = 'down' AND "Post"."id" = rating."postId") as "rating",
+"author"."id" AS "author.id", "author"."email" AS "author.email", "author"."nickname" AS "author.nickname", "author"."avatar" AS "author.avatar", "author"."banner" AS "author.banner", "author"."banned" AS "author.banned", "author"."banReason" AS "author.banReason", "author"."aboutUser" AS "author.aboutUser", "author"."createdAt" AS "author.createdAt" 
+FROM (("post" AS "Post" 
+ LEFT OUTER JOIN "users" AS "author" ON "Post"."userId" = "author"."id")
+ LEFT OUTER JOIN rating ON "Post"."id" = rating."postId"
+)  WHERE "Post"."publish" = true)`,
+      {
+        nest: true,
+        type: QueryTypes.SELECT
+      });
   }
 
   async createPost(req) {
@@ -40,27 +45,32 @@ export class PostService {
   }
 
   async updatePost(dto, request) {
-    const post = await this.postsRepository.findByPk(dto.postId);
-    if (post.userId !== request.user.id) {
-      return new HttpException(
-        { message: 'Вы не являетесь автором поста' },
-        HttpStatus.BAD_REQUEST
-      );
+    try {
+      const post = await this.postsRepository.findByPk(dto.postId);
+      if (post.userId !== request.user.id) {
+        return new HttpException(
+          { message: 'Вы не являетесь автором поста' },
+          HttpStatus.BAD_REQUEST
+        );
+      }
+      post.data = dto.data;
+      await post.save();
+      return new HttpException(post, HttpStatus.OK);
+    } catch (e) {
+      return new HttpException({ 'error': 'Что-то пошло не так' }, HttpStatus.BAD_REQUEST);
     }
-    post.data = dto.data;
-    post.save();
-    return new HttpException(post, HttpStatus.OK);
+
   }
 
   async toPublishPost(postId) {
     try {
       const post = await this.postsRepository.findByPk(postId);
       post.publish = true;
-      post.save();
+      await post.save();
       return new HttpException(post, HttpStatus.OK);
 
     } catch (e) {
-      return new HttpException({ 'error': e }, HttpStatus.BAD_REQUEST);
+      return new HttpException({ 'error': 'Что-то пошло не так' }, HttpStatus.BAD_REQUEST);
     }
   }
 
@@ -68,10 +78,10 @@ export class PostService {
     try {
       const post = await this.postsRepository.findByPk(postId);
       post.publish = false;
-      post.save();
+      await post.save();
       return new HttpException(post, HttpStatus.OK);
     } catch (e) {
-      return new HttpException({ 'error': e }, HttpStatus.BAD_REQUEST);
+      return new HttpException({ 'error': 'Что-то пошло не так' }, HttpStatus.BAD_REQUEST);
     }
   }
 
@@ -80,7 +90,15 @@ export class PostService {
       await this.postsRepository.destroy({ where: { id: postId } });
       return new HttpException({ message: 'post has been deleted' }, HttpStatus.OK);
     } catch (e) {
-      return new HttpException({ 'error': e }, HttpStatus.BAD_REQUEST);
+      return new HttpException({ 'error': 'Что-то пошло не так' }, HttpStatus.BAD_REQUEST);
     }
+  }
+
+  async increaseRatingPost(postId, request) {
+    return await this.ratingService.createRating(request.user.id, postId, 'up');
+  }
+
+  async decreaseRatingPost(postId, request) {
+    return await this.ratingService.createRating(request.user.id, postId, 'down');
   }
 }

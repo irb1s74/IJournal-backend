@@ -1,9 +1,9 @@
-import { Column, Table, DataType, Model, ForeignKey, BelongsTo } from 'sequelize-typescript';
+import { BelongsTo, Column, DataType, Model, Table } from 'sequelize-typescript';
 import { Users } from '../../users/model/Users.model';
 
 interface SubscriptionsCreationAttrs {
-  userId: string;
-  subscriberId: string;
+  userId: number;
+  subscriberId: number;
 }
 
 @Table({ tableName: 'subscriptions', updatedAt: false })

@@ -1,7 +1,9 @@
 import {
   Body,
-  Controller, Delete,
-  Get, Param,
+  Controller,
+  Delete,
+  Get,
+  Param,
   Post,
   Req,
   UploadedFile,
@@ -27,7 +29,6 @@ export class PostController {
   }
 
 
-
   @Post('/create')
   @UseGuards(JwtAuthGuard)
   createPost(@Req() request: Request) {
@@ -45,6 +46,18 @@ export class PostController {
   @UsePipes(ValidationPipe)
   updatePost(@Body() dto: PostUpdateDto, @Req() request: Request) {
     return this.postsService.updatePost(dto, request);
+  }
+
+  @Post('/increase')
+  @UseGuards(JwtAuthGuard)
+  increaseRatingPost(@Body() dto: { postId: number }, @Req() request: Request) {
+    return this.postsService.increaseRatingPost(dto.postId, request);
+  }
+
+  @Post('/decrease')
+  @UseGuards(JwtAuthGuard)
+  decreaseRatingPost(@Body() dto: { postId: number }, @Req() request: Request) {
+    return this.postsService.decreaseRatingPost(dto.postId, request);
   }
 
   @Get('/publish/:id')

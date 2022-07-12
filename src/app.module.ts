@@ -7,11 +7,13 @@ import { Users } from './users/model/Users.model';
 import { AuthModule } from './auth/auth.module';
 import { FileModule } from './file/file.module';
 import { PostModule } from './post/post.module';
-import * as path from 'path';
 import { Post } from './post/model/Post.model';
 import { ProfileModule } from './profile/profile.module';
 import { SubscriptionsModule } from './subscriptions/subscriptions.module';
 import { Subscriptions } from './subscriptions/model/Subscriptions.model';
+import { RatingModule } from './rating/rating.module';
+import { Rating } from './rating/model/Rating.model';
+import * as path from 'path';
 
 @Module({
   controllers: [],
@@ -30,7 +32,7 @@ import { Subscriptions } from './subscriptions/model/Subscriptions.model';
       username: process.env.POSTGRES_USER,
       password: process.env.POSTGRES_PASSWORD,
       database: process.env.POSTGRES_DB,
-      models: [Users, Post, Subscriptions],
+      models: [Users, Post, Subscriptions, Rating],
       autoLoadModels: true
     }),
     UsersModule,
@@ -38,7 +40,8 @@ import { Subscriptions } from './subscriptions/model/Subscriptions.model';
     FileModule,
     PostModule,
     ProfileModule,
-    SubscriptionsModule
+    SubscriptionsModule,
+    RatingModule
   ]
 })
 export class AppModule {
