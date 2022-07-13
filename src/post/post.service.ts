@@ -15,7 +15,7 @@ export class PostService {
   ) {
   }
 
-  async getPost() {
+  async getNewPosts() {
     return this.postsRepository.sequelize.query(`(SELECT 
     post."id", post."userId", post."data", post."publish", post."updatedAt", 
     (SELECT COUNT(rating."ratingType") FROM rating WHERE rating."ratingType" = 'up' AND post."id" = rating."postId") - (SELECT COUNT(rating."ratingType") FROM rating WHERE rating."ratingType" = 'down' AND post."id" = rating."postId") as "rating",
@@ -23,7 +23,21 @@ export class PostService {
     FROM ((post
     LEFT OUTER JOIN users AS author ON post."userId" = "author"."id")
     LEFT OUTER JOIN rating ON post."id" = rating."postId"
-    )  WHERE post."publish" = true)`,
+    )  WHERE post."publish" = true ORDER BY post."updatedAt" DESC)`,
+      {
+        nest: true,
+        type: QueryTypes.SELECT
+      });
+  }
+  async getPopularPosts() {
+    return this.postsRepository.sequelize.query(`(SELECT 
+    post."id", post."userId", post."data", post."publish", post."updatedAt", 
+    (SELECT COUNT(rating."ratingType") FROM rating WHERE rating."ratingType" = 'up' AND post."id" = rating."postId") - (SELECT COUNT(rating."ratingType") FROM rating WHERE rating."ratingType" = 'down' AND post."id" = rating."postId") as "rating",
+    author."id" AS "author.id", author."email" AS "author.email", author."nickname" AS "author.nickname", author."avatar" AS "author.avatar"
+    FROM ((post
+    LEFT OUTER JOIN users AS author ON post."userId" = "author"."id")
+    LEFT OUTER JOIN rating ON post."id" = rating."postId"
+    )  WHERE post."publish" = true AND DATE_PART('day', CURRENT_TIMESTAMP - post."createdAt"::timestamp) < 1 ORDER BY "rating" DESC)`,
       {
         nest: true,
         type: QueryTypes.SELECT

@@ -24,8 +24,13 @@ export class PostController {
   }
 
   @Get('/new')
-  getPost() {
-    return this.postsService.getPost();
+  getNewPost() {
+    return this.postsService.getNewPosts();
+  }
+
+  @Get('/popular')
+  getPopularPost() {
+    return this.postsService.getPopularPosts();
   }
 
 
