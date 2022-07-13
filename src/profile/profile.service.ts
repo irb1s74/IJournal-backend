@@ -70,29 +70,6 @@ export class ProfileService {
     return this.subscriptionsService.getUserSubscribe(userId);
   }
 
-  // async getUser(userId) {
-  //   return await this.userRepository.findByPk(userId, {
-  //     attributes: {
-  //       exclude: ['password', 'id'],
-  //     },
-  //
-  //     include: [
-  //       {
-  //         model: Post,
-  //         attributes: {
-  //           exclude: ['userId'],
-  //         },
-  //         include: [{
-  //           model: Users,
-  //           attributes: [
-  //             'id', 'nickname', 'email', 'avatar'
-  //           ]
-  //         }],
-  //         required: false
-  //       }
-  //     ]
-  //   });
-  // }
   async getUser(userId) {
     const user = await this.userRepository.findByPk(userId, {
       attributes: ['id', 'nickname', 'email', 'avatar', 'banner', 'aboutUser', 'createdAt']
@@ -109,8 +86,8 @@ export class ProfileService {
         nest: true,
         type: QueryTypes.SELECT
       });
-
-    return { user, posts: posts };
+    const subs = await this.subscriptionsService.getUserSubscribe(userId);
+    return { user, posts, subs };
   }
 
 }
