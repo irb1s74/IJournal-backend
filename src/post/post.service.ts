@@ -37,7 +37,7 @@ export class PostService {
     FROM ((post
     LEFT OUTER JOIN users AS author ON post."userId" = "author"."id")
     LEFT OUTER JOIN rating ON post."id" = rating."postId"
-    )  WHERE post."publish" = true AND DATE_PART('day', CURRENT_TIMESTAMP - post."createdAt"::timestamp) < 1 ORDER BY "rating" DESC)`,
+    )  WHERE post."publish" = true AND DATE_PART('day', CURRENT_TIMESTAMP - post."createdAt"::timestamp) < 31 ORDER BY "rating" DESC)`,
       {
         nest: true,
         type: QueryTypes.SELECT
