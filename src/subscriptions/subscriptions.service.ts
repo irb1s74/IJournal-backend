@@ -1,7 +1,7 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { Subscriptions } from './model/Subscriptions.model';
-import { Op } from 'sequelize';
+import { Op, QueryTypes } from 'sequelize';
 import { Users } from '../users/model/Users.model';
 
 @Injectable()
@@ -35,6 +35,8 @@ export class SubscriptionsService {
       return new HttpException({ 'error': error }, HttpStatus.BAD_REQUEST);
     }
   }
+
+
 
   async getUserSubscribe(userId: number) {
     try {

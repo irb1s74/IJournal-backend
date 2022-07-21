@@ -11,6 +11,7 @@ export class SubscriptionsController {
   @Post('/to/subscribe')
   @UseGuards(JwtAuthGuard)
   toSubscribe(@Req() request: Request, @Body() dto: { userId: number }) {
-    return this.subscriptionsService.toSubscribe(dto,request);
+    return this.subscriptionsService.toSubscribe(dto, request);
   }
+
 }

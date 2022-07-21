@@ -29,6 +29,7 @@ export class PostService {
         type: QueryTypes.SELECT
       });
   }
+
   async getPopularPosts() {
     return this.postsRepository.sequelize.query(`(SELECT 
     post."id", post."userId", post."data", post."publish", post."updatedAt", 
@@ -42,6 +43,18 @@ export class PostService {
         nest: true,
         type: QueryTypes.SELECT
       });
+  }
+
+  async getSubPosts(userId: number) {
+    return await this.postsRepository.sequelize.query(`(SELECT post."id", post."userId", post."data", post."publish", post."updatedAt", 
+    (SELECT COUNT(rating."ratingType") FROM rating WHERE rating."ratingType" = 'up' AND post."id" = rating."postId") - (SELECT COUNT(rating."ratingType") FROM rating WHERE rating."ratingType" = 'down' AND post."id" = rating."postId") as "rating",
+     author."id" AS "author.id", author."email" AS "author.email", author."nickname" AS "author.nickname", author."avatar" AS "author.avatar"
+     FROM ((subscriptions LEFT OUTER JOIN users AS author ON subscriptions."userId" = "author"."id")
+           LEFT OUTER JOIN post ON subscriptions."userId" = post."userId"
+    ) WHERE subscriptions."subscriberId" = ${userId} AND post."publish" = true ORDER BY post."updatedAt" DESC)`, {
+      nest: true,
+      type: QueryTypes.SELECT
+    });
   }
 
   async createPost(req) {

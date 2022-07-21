@@ -33,6 +33,12 @@ export class PostController {
     return this.postsService.getPopularPosts();
   }
 
+  @Get('/subs')
+  @UseGuards(JwtAuthGuard)
+  getSubPost(@Req() request: {user: {id: number}}) {
+    return this.postsService.getSubPosts(request.user.id);
+  }
+
 
   @Post('/create')
   @UseGuards(JwtAuthGuard)
