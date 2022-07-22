@@ -74,6 +74,9 @@ export class ProfileService {
     const user = await this.userRepository.findByPk(userId, {
       attributes: ['id', 'nickname', 'email', 'avatar', 'banner', 'aboutUser', 'createdAt']
     });
+    if (!user) {
+      return new HttpException({ 'message': 'Пользователь не найден' }, HttpStatus.BAD_REQUEST);
+    }
     const posts = await this.postsRepository.sequelize.query(`(SELECT 
     post."id", post."userId", post."data", post."publish", post."updatedAt", 
     (SELECT COUNT(rating."ratingType") FROM rating WHERE rating."ratingType" = 'up' AND post."id" = rating."postId") - (SELECT COUNT(rating."ratingType") FROM rating WHERE rating."ratingType" = 'down' AND post."id" = rating."postId") as "rating",
