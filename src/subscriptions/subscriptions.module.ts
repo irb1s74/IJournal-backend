@@ -14,7 +14,8 @@ import { Subscriptions } from './model/Subscriptions.model';
       signOptions: {
         expiresIn: '72h'
       }
-    })],
+    })
+  ],
   controllers: [SubscriptionsController],
   providers: [SubscriptionsService],
   exports: [

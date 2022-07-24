@@ -6,11 +6,7 @@ import { Users } from '../users/model/Users.model';
 
 @Injectable()
 export class SubscriptionsService {
-  constructor(
-    @InjectModel(Subscriptions) private subscriptionsRepository: typeof Subscriptions
-  ) {
-  }
-
+  constructor(@InjectModel(Subscriptions) private subscriptionsRepository: typeof Subscriptions) {}
 
   async toSubscribe(dto, request) {
     try {

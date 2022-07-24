@@ -3,15 +3,17 @@ import { SequelizeModule } from '@nestjs/sequelize';
 import { ConfigModule } from '@nestjs/config';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { UsersModule } from './users/users.module';
-import { Users } from './users/model/Users.model';
 import { AuthModule } from './auth/auth.module';
 import { FileModule } from './file/file.module';
 import { PostModule } from './post/post.module';
-import { Post } from './post/model/Post.model';
 import { ProfileModule } from './profile/profile.module';
 import { SubscriptionsModule } from './subscriptions/subscriptions.module';
-import { Subscriptions } from './subscriptions/model/Subscriptions.model';
 import { RatingModule } from './rating/rating.module';
+import { BookmarksModule } from './bookmarks/bookmarks.module';
+import { Subscriptions } from './subscriptions/model/Subscriptions.model';
+import { Users } from './users/model/Users.model';
+import { Bookmarks } from './bookmarks/model/Bookmarks.model';
+import { Post } from './post/model/Post.model';
 import { Rating } from './rating/model/Rating.model';
 import * as path from 'path';
 
@@ -32,7 +34,7 @@ import * as path from 'path';
       username: process.env.POSTGRES_USER,
       password: process.env.POSTGRES_PASSWORD,
       database: process.env.POSTGRES_DB,
-      models: [Users, Post, Subscriptions, Rating],
+      models: [Users, Post, Subscriptions, Rating, Bookmarks],
       autoLoadModels: true
     }),
     UsersModule,
@@ -41,7 +43,8 @@ import * as path from 'path';
     PostModule,
     ProfileModule,
     SubscriptionsModule,
-    RatingModule
+    RatingModule,
+    BookmarksModule
   ]
 })
 export class AppModule {

@@ -39,6 +39,12 @@ export class PostController {
     return this.postsService.getSubPosts(request.user.id);
   }
 
+  @Get('/bookmarks')
+  @UseGuards(JwtAuthGuard)
+  getBookmarksPosts(@Req() request: {user: {id: number}}) {
+    return this.postsService.getBookmarksPosts(request.user.id);
+  }
+
 
   @Post('/create')
   @UseGuards(JwtAuthGuard)

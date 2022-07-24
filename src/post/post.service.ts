@@ -57,6 +57,18 @@ export class PostService {
     });
   }
 
+  async getBookmarksPosts(userId: number) {
+    return await this.postsRepository.sequelize.query(`(SELECT post."id", post."userId", post."data", post."publish", post."updatedAt", 
+    (SELECT COUNT(rating."ratingType") FROM rating WHERE rating."ratingType" = 'up' AND post."id" = rating."postId") - (SELECT COUNT(rating."ratingType") FROM rating WHERE rating."ratingType" = 'down' AND post."id" = rating."postId") as "rating",
+     author."id" AS "author.id", author."email" AS "author.email", author."nickname" AS "author.nickname", author."avatar" AS "author.avatar"
+     FROM ((bookmarks LEFT OUTER JOIN users AS author ON bookmarks."userId" = "author"."id")
+           LEFT OUTER JOIN post ON bookmarks."postId" = post."id"
+    ) WHERE bookmarks."userId" = ${userId} ORDER BY post."updatedAt" DESC)`, {
+      nest: true,
+      type: QueryTypes.SELECT
+    });
+  }
+
   async createPost(req) {
     return this.postsRepository.create({ userId: req.user.id });
   }
