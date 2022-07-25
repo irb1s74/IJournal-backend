@@ -2,10 +2,13 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { Op } from 'sequelize';
 import { InjectModel } from '@nestjs/sequelize';
 import { Bookmarks } from './model/Bookmarks.model';
+import { PostService } from '../post/post.service';
 
 @Injectable()
 export class BookmarksService {
-  constructor(@InjectModel(Bookmarks) private bookmarksRepository: typeof Bookmarks) {}
+  constructor(@InjectModel(Bookmarks) private bookmarksRepository: typeof Bookmarks,
+              private postService: PostService) {
+  }
 
   async toBookmarks(dto, request) {
     try {
@@ -23,9 +26,9 @@ export class BookmarksService {
       });
       if (!created) {
         await bookmark.destroy();
-        return new HttpException({ message: 'bookmark has been deleted' }, HttpStatus.OK);
+        return this.postService.getBookmarksPosts(request.user.id);
       }
-      return new HttpException({ message: 'you have got to bookmark' }, HttpStatus.CREATED);
+      return this.postService.getBookmarksPosts(request.user.id);
     } catch (error) {
       return new HttpException({ 'error': error }, HttpStatus.BAD_REQUEST);
     }

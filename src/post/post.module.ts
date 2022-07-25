@@ -21,7 +21,8 @@ import { RatingModule } from '../rating/rating.module';
       }
     })],
   controllers: [PostController],
-  providers: [PostService]
+  providers: [PostService],
+  exports: [PostService]
 })
 export class PostModule {
 }
