@@ -33,15 +33,25 @@ export class PostController {
     return this.postsService.getPopularPosts();
   }
 
+  @Get('/get/:id')
+  getPost(@Param('id') id) {
+    return this.postsService.getPost(id);
+  }
+
+  @Get('/find/:content')
+  findPost(@Param('content') content) {
+    return this.postsService.findPosts(content);
+  }
+
   @Get('/subs')
   @UseGuards(JwtAuthGuard)
-  getSubPost(@Req() request: {user: {id: number}}) {
+  getSubPost(@Req() request: { user: { id: number } }) {
     return this.postsService.getSubPosts(request.user.id);
   }
 
   @Get('/bookmarks')
   @UseGuards(JwtAuthGuard)
-  getBookmarksPosts(@Req() request: {user: {id: number}}) {
+  getBookmarksPosts(@Req() request: { user: { id: number } }) {
     return this.postsService.getBookmarksPosts(request.user.id);
   }
 

@@ -21,6 +21,12 @@ export class Post extends Model<Post, PostCreationAttrs> {
   userId: number;
 
   @Column({
+    type: DataType.STRING,
+    allowNull: true,
+  })
+  title:string;
+
+  @Column({
     type: DataType.JSON,
     allowNull: true,
     defaultValue: {}
