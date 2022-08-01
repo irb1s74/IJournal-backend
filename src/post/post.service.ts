@@ -107,7 +107,7 @@ export class PostService {
     return {
       success: 1,
       file: {
-        url: `http://localhost:5000/posts/${fileName}`
+        url: `http://irb1s.ru:5000/posts/${fileName}`
       }
     };
   }
